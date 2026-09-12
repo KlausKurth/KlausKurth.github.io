@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Donaldo — um jogo de Klaus Kurth</title>
+<meta name="description" content="Donaldo, o quebra-cabeça de organizar frutas da selva. Solte as cores nos cestos certos, quebre bolas de lama, vença chefões e liberte 36 macaquinhos presos.">
+<link rel="icon" type="image/png" href="../assets/favicon-donaldo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --fundo: #F4F0E2;
+    --card-fundo: #FFFFFB;
+    --folha: #2F6B3C;
+    --folha-escura: #1E4A28;
+    --folha-clara: #DDEEDC;
+    --madeira: #8B5A2B;
+    --madeira-escura: #5B3A1E;
+    --madeira-clara: #E7D3B0;
+    --texto: #3B3126;
+    --texto-secundario: #8A7E6C;
+    --linha: #E7DFCB;
+    --dourado: #E0A93E;
+    --coral: #E4572E;
+    --sombra: rgba(45, 33, 15, 0.16);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--fundo);
+    color: var(--texto);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3 {
+    font-family: 'Baloo 2', sans-serif;
+    color: var(--folha-escura);
+    line-height: 1.15;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  img { max-width: 100%; display: block; }
+
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+  .bg-glow {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(620px circle at 10% 6%, rgba(47, 107, 60, 0.14), transparent 60%),
+      radial-gradient(520px circle at 92% 14%, rgba(224, 169, 62, 0.16), transparent 55%),
+      radial-gradient(700px circle at 50% 100%, rgba(139, 90, 43, 0.12), transparent 60%);
+  }
+
+  /* ---------- Header ---------- */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    backdrop-filter: blur(10px);
+    background: rgba(244, 240, 226, 0.85);
+    border-bottom: 1px solid var(--linha);
+  }
+
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 24px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--folha-escura);
+  }
+
+  .brand img { width: 38px; height: 38px; border-radius: 10px; }
+
+  .voltar {
+    font-weight: 800;
+    font-size: 0.85rem;
+    color: var(--texto-secundario);
+  }
+
+  .voltar:hover { color: var(--folha-escura); }
+
+  nav {
+    display: flex;
+    align-items: center;
+    gap: 26px;
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: var(--texto-secundario);
+  }
+
+  nav a:hover { color: var(--folha-escura); }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    padding: 80px 0 60px;
+    text-align: center;
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    color: var(--folha);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    background: var(--folha-clara);
+    padding: 8px 16px;
+    border-radius: 999px;
+  }
+
+  .hero h1 {
+    font-size: clamp(2.5rem, 6vw, 4.2rem);
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+
+  .hero h1 .destaque { color: var(--coral); }
+
+  .hero .subtitulo {
+    max-width: 620px;
+    margin: 20px auto 0;
+    font-size: 1.14rem;
+    color: var(--texto-secundario);
+  }
+
+  .hero-cta {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    margin-top: 32px;
+    flex-wrap: wrap;
+  }
+
+  .botao {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px 28px;
+    border-radius: 16px;
+    font-weight: 800;
+    font-size: 0.98rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .botao-primario {
+    background: linear-gradient(135deg, var(--folha), var(--folha-escura));
+    color: #fff;
+    box-shadow: 0 10px 26px -8px var(--sombra);
+  }
+
+  .botao-primario:hover { transform: translateY(-3px); box-shadow: 0 16px 32px -10px var(--sombra); }
+
+  .botao-secundario {
+    background: var(--card-fundo);
+    border: 2px solid var(--linha);
+    color: var(--folha-escura);
+  }
+
+  .botao-secundario:hover { transform: translateY(-3px); border-color: var(--dourado); }
+
+  .hero-graphic {
+    margin: 52px auto 0;
+    max-width: 900px;
+    border-radius: 28px;
+    overflow: hidden;
+    box-shadow: 0 30px 60px -24px var(--sombra);
+    border: 6px solid var(--card-fundo);
+    outline: 1px solid var(--linha);
+  }
+
+  .hero-graphic img { width: 100%; }
+
+  /* ---------- Reveal on scroll ---------- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visivel { opacity: 1; transform: translateY(0); }
+
+  /* ---------- Seções genéricas ---------- */
+  section { padding: 76px 0; }
+
+  .secao-titulo { text-align: center; max-width: 620px; margin: 0 auto 48px; }
+  .secao-titulo .eyebrow { display: inline-flex; }
+  .secao-titulo h2 { font-size: clamp(1.9rem, 4vw, 2.5rem); margin-top: 10px; }
+  .secao-titulo p { color: var(--texto-secundario); margin-top: 12px; font-size: 1.03rem; }
+
+  /* ---------- Features grid ---------- */
+  .grid-features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+  }
+
+  .feature-card {
+    background: var(--card-fundo);
+    border: 1px solid var(--linha);
+    border-radius: 20px;
+    padding: 28px 24px;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  }
+
+  .feature-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 18px 36px -18px var(--sombra);
+    border-color: var(--dourado);
+  }
+
+  .feature-icone {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    background: var(--folha-clara);
+    margin-bottom: 16px;
+  }
+
+  .feature-card h3 {
+    font-size: 1.06rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .feature-card p {
+    font-size: 0.92rem;
+    color: var(--texto-secundario);
+  }
+
+  /* ---------- Faixa mascote ---------- */
+  .faixa-mascote {
+    background: linear-gradient(135deg, var(--folha-escura), var(--folha) 130%);
+    border-radius: 32px;
+    padding: 52px 40px;
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .faixa-mascote::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(420px circle at 88% 15%, rgba(224, 169, 62, 0.35), transparent 60%);
+  }
+
+  .faixa-mascote img {
+    width: 170px;
+    flex-shrink: 0;
+    filter: drop-shadow(0 14px 20px rgba(0,0,0,0.3));
+    position: relative;
+  }
+
+  .faixa-mascote .texto { position: relative; }
+
+  .faixa-mascote h3 {
+    color: #fff;
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+  }
+
+  .faixa-mascote p { color: var(--folha-clara); font-size: 1rem; max-width: 520px; }
+
+  /* ---------- Coleção de macacos ---------- */
+  .grid-macacos {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 14px;
+    max-width: 880px;
+    margin: 0 auto;
+  }
+
+  .macaco-item {
+    aspect-ratio: 1;
+    border-radius: 18px;
+    overflow: hidden;
+    border: 3px solid var(--card-fundo);
+    outline: 1px solid var(--linha);
+    box-shadow: 0 10px 22px -12px var(--sombra);
+    transition: transform 0.25s ease;
+  }
+
+  .macaco-item:hover { transform: translateY(-5px) scale(1.04); }
+
+  .macaco-item img { width: 100%; height: 100%; object-fit: cover; }
+
+  .colecao-nota {
+    text-align: center;
+    margin-top: 26px;
+    color: var(--texto-secundario);
+    font-size: 0.95rem;
+  }
+
+  .colecao-nota strong { color: var(--folha-escura); }
+
+  /* ---------- Selos ---------- */
+  .selo-privacidade {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    text-align: center;
+  }
+
+  .selo-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--card-fundo);
+    border: 1px solid var(--linha);
+    border-radius: 999px;
+    padding: 10px 18px;
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--folha-escura);
+  }
+
+  /* ---------- CTA final ---------- */
+  .cta-final {
+    background: var(--card-fundo);
+    border: 1px solid var(--linha);
+    border-radius: 28px;
+    padding: 54px 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-final::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(360px circle at 90% 0%, var(--folha-clara), transparent 60%);
+    z-index: 0;
+  }
+
+  .cta-final > * { position: relative; }
+
+  .cta-final h2 { font-size: clamp(1.7rem, 4vw, 2.3rem); margin-bottom: 14px; }
+  .cta-final p { color: var(--texto-secundario); max-width: 480px; margin: 0 auto 30px; }
+
+  /* ---------- Footer ---------- */
+  footer {
+    border-top: 1px solid var(--linha);
+    padding: 40px 0;
+    text-align: center;
+    color: var(--texto-secundario);
+    font-size: 0.86rem;
+  }
+
+  footer .brand { justify-content: center; margin-bottom: 10px; }
+
+  @media (max-width: 720px) {
+    .faixa-mascote { flex-direction: column; text-align: center; padding: 40px 24px; }
+    .faixa-mascote p { max-width: none; }
+    nav a:not(.voltar) { display: none; }
+    .grid-macacos { grid-template-columns: repeat(4, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-glow"></div>
+
+<header>
+  <div class="header-inner">
+    <a href="../index.html" class="brand">
+      <img src="../assets/icon-donaldo-512.png" alt="Logo Donaldo">
+      Donaldo
+    </a>
+    <nav>
+      <a href="#recursos">Recursos</a>
+      <a href="#colecao">Coleção</a>
+      <a href="#privacidade">Privacidade</a>
+      <a class="voltar" href="../index.html">← Klaus Kurth</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero wrap">
+    <div class="eyebrow reveal visivel">🐒 um jogo de Klaus Kurth 🍌</div>
+    <h1 class="reveal visivel">Organize as frutas,<br>liberte a <span class="destaque">selva</span></h1>
+    <p class="subtitulo reveal visivel">
+      Donaldo é o quebra-cabeça de organizar cores num tema tropical: mova as frutas entre os
+      cestos até cada um ficar só de uma cor. Fase a fase, você liberta macaquinhos presos e
+      desvenda a história deles.
+    </p>
+    <div class="hero-cta reveal visivel">
+      <a class="botao botao-primario" href="https://play.google.com/store/apps/details?id=com.donaldo.jogo" target="_blank" rel="noopener">
+        ▶ Baixar na Google Play
+      </a>
+      <a class="botao botao-secundario" href="#colecao">🐒 Ver a coleção</a>
+    </div>
+    <div class="hero-graphic reveal">
+      <img src="../assets/donaldo-hero.jpg" alt="Donaldo, o macaquinho da selva, ao lado de um cesto cheio de frutas coloridas e dos ícones de ajuda do jogo">
+    </div>
+  </section>
+
+  <section id="recursos" class="wrap">
+    <div class="secao-titulo reveal">
+      <span class="eyebrow">🍍 como se joga 🍍</span>
+      <h2>Simples de aprender, difícil de largar</h2>
+      <p>Mova frutas entre cestos, complete uma cor por vez e avance por fases infinitas — cada uma um pouco mais desafiadora que a anterior.</p>
+    </div>
+
+    <div class="grid-features">
+      <div class="feature-card reveal">
+        <div class="feature-icone">🧺</div>
+        <h3>Organize por cor</h3>
+        <p>Mova a fruta do topo de um cesto pra outro até formar cestos de uma cor só.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icone">🐒</div>
+        <h3>Liberte 36 macaquinhos</h3>
+        <p>Cada marco de fase liberta um novo macaco preso na jaula, com nome e história própria.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icone">💎</div>
+        <h3>Cestos de esmeralda</h3>
+        <p>A cada 5 fases, um cesto bônus aparece brilhando — complete-o e ganhe gemas na hora.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icone">🟤</div>
+        <h3>Bolas de lama</h3>
+        <p>De vez em quando uma fruta some sob a lama — quebre pra revelar o que tem embaixo.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icone">👑</div>
+        <h3>Enfrente os chefões</h3>
+        <p>Vença batalhas especiais contra os vilões da selva e colecione os cards de cada um.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icone">🏆</div>
+        <h3>Ranking global</h3>
+        <p>Fases são infinitas — a mais alta que você alcançar entra no placar do Google Play Games.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icone">🔀</div>
+        <h3>Ações de ajuda</h3>
+        <p>Travou? Desfaça a última jogada, peça uma dica, ganhe um cesto extra ou embaralhe.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icone">🔁</div>
+        <h3>Recomeçar é de graça</h3>
+        <p>Errou a fase? Recomece do zero sem gastar nada — quantas vezes precisar.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icone">🚫</div>
+        <h3>Sem anúncios</h3>
+        <p>Jogue sem interrupções, sem vídeo forçado entre uma fase e outra.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <div class="faixa-mascote reveal">
+      <img src="../assets/donaldo-mascote.png" alt="Donaldo, o mascote macaquinho, acenando com uma banana na mão">
+      <div class="texto">
+        <h3>Oi, eu sou o Donaldo!</h3>
+        <p>Cada fase que você resolve me deixa mais perto de libertar mais um amigo preso na jaula. São 36 macaquinhos ao todo, cada um com sua própria cara e sua própria história pra contar. 🍌</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="colecao" class="wrap">
+    <div class="secao-titulo reveal">
+      <span class="eyebrow">🗝️ colecionável 🗝️</span>
+      <h2>36 macaquinhos esperando para serem livres</h2>
+      <p>Cada um desenhado à mão, com sua própria personalidade — um verdadeiro álbum de figurinhas dentro do jogo.</p>
+    </div>
+    <div class="grid-macacos reveal">
+      <div class="macaco-item"><img src="../assets/macaco-01.png" alt="Macaquinho colecionável do Donaldo"></div>
+      <div class="macaco-item"><img src="../assets/macaco-03.png" alt="Macaquinho colecionável do Donaldo"></div>
+      <div class="macaco-item"><img src="../assets/macaco-06.png" alt="Macaquinho colecionável do Donaldo"></div>
+      <div class="macaco-item"><img src="../assets/macaco-09.png" alt="Macaquinho colecionável do Donaldo"></div>
+      <div class="macaco-item"><img src="../assets/macaco-16.png" alt="Macaquinho colecionável do Donaldo"></div>
+      <div class="macaco-item"><img src="../assets/macaco-20.png" alt="Macaquinho colecionável do Donaldo"></div>
+      <div class="macaco-item"><img src="../assets/macaco-28.png" alt="Macaquinho colecionável do Donaldo"></div>
+      <div class="macaco-item"><img src="../assets/macaco-32.png" alt="Macaquinho colecionável do Donaldo"></div>
+    </div>
+    <p class="colecao-nota reveal">E ainda tem os <strong>chefões</strong> da selva pra vencer e colecionar à parte. 👑</p>
+  </section>
+
+  <section id="privacidade" class="wrap">
+    <div class="secao-titulo reveal">
+      <span class="eyebrow">🔒 privacidade em primeiro lugar 🔒</span>
+      <h2>Seu progresso, só seu</h2>
+      <p>O jogo não exibe anúncios e seu progresso fica salvo localmente no seu aparelho.</p>
+    </div>
+    <div class="selo-privacidade reveal">
+      <span class="selo-item">🚫 Sem anúncios</span>
+      <span class="selo-item">📱 Progresso salvo no aparelho</span>
+      <span class="selo-item">🏆 Ranking via Google Play Games</span>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <div class="cta-final reveal">
+      <h2>Entre na selva do Donaldo</h2>
+      <p>Gratuito na Google Play. Organize seu primeiro cesto em menos de um minuto.</p>
+      <a class="botao botao-primario" href="https://play.google.com/store/apps/details?id=com.donaldo.jogo" target="_blank" rel="noopener">
+        ▶ Baixar Donaldo
+      </a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="brand">
+      <img src="../assets/icon-donaldo-512.png" alt="Logo">
+      Donaldo
+    </div>
+    <p>Um jogo de <a href="../index.html" style="text-decoration: underline;">Klaus Kurth</a>.</p>
+    <p>&copy; <span id="ano"></span> Klaus Kurth. Todos os direitos reservados.</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById('ano').textContent = new Date().getFullYear();
+
+  const observador = new IntersectionObserver((entradas) => {
+    entradas.forEach((entrada) => {
+      if (entrada.isIntersecting) {
+        entrada.target.classList.add('visivel');
+        observador.unobserve(entrada.target);
+      }
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('.reveal').forEach((el) => observador.observe(el));
+</script>
+
+</body>
+</html>
